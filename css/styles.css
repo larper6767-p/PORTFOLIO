@@ -1,0 +1,1100 @@
+/* ============================================================
+   SKETCHBOOK — all presentation.
+   Every colour, size and breakpoint keys off the tokens in
+   :root, so the three paper palettes re-skin from one place.
+   Markup lives in index.html, behaviour in js/script.js.
+   ============================================================ */
+/* ============================================================
+   1. TOKENS — the whole palette re-skins from here
+   ============================================================ */
+:root {
+  /* type: display / editorial serif / restrained sans / mono for labels /
+     the artist's hand. Syne is the one deliberately unusual voice on the
+     site and is used for the wordmark on the front page and nowhere else. */
+  --display: "Syne", "Fraunces", "Bodoni Moda", "Cormorant Garamond", Georgia, serif;
+  --serif: "Cormorant Garamond", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --sans: "Work Sans", "Helvetica Neue", Arial, sans-serif;
+  --tech: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --script: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+
+  /* the one chosen accent: burnt sienna */
+  --accent: #a8462a;
+
+  /* THE BRAND — the maroon is the site's identity and stays maroon whichever
+     sketchbook theme is active. It is not in the swatch row and nothing sets
+     it inside [data-palette]. The whole desk sits on this gradient. */
+  --brand: #6e1423;
+  --brand-deep: #5a0f1c;   /* one step darker, for depth */
+  --brand-ink: #f4ece3;    /* the cream that sits on it — 10.05:1 on --brand */
+  --brand-rule: rgba(244, 236, 227, .22);
+  --brand-dim: rgba(244, 236, 227, .62);  /* 4.68:1 on --brand, 5.26:1 on --brand-deep */
+
+  /* paper */
+  --paper: #f2e9db;
+  --paper-edge: #dccdb4;
+  --ink: #241f1a;
+  --ink-soft: #4b4239;
+  --ink-faint: #8a7e6d;
+  --rule: rgba(36, 31, 26, .16);
+
+  /* boards: the desk surface is no longer palette-driven — it is maroon.
+     The cover colours still shift per palette. Desk-side type is cream. */
+  --cover: #6d5a45;
+  --cover-ink: #f2e8d8;
+  /* Desk type repointed to the cream: the surface is now dark maroon, so
+     dark brown would be invisible. These are the desk-facing tokens. */
+  --desk-ink: var(--brand-ink);
+  --desk-ink-dim: var(--brand-dim);
+  --desk-rule: var(--brand-rule);
+}
+
+[data-palette="kraft"] {
+  --paper: #e7d6b8;
+  --paper-edge: #cdb794;
+  --ink: #2b2219;
+  --ink-soft: #52402c;
+  --ink-faint: #8a7458;
+  --rule: rgba(43, 34, 25, .20);
+  --cover: #4f6353;
+  --cover-ink: #eef0e6;
+}
+
+[data-palette="slate"] {
+  --paper: #2d2c29;
+  --paper-edge: #464440;
+  --ink: #ece5d8;
+  --ink-soft: #c2bbad;
+  --ink-faint: #8b8578;
+  --rule: rgba(236, 229, 216, .18);
+  --cover: #1e1c1a;
+  --cover-ink: #e8e1d4;
+}
+
+/* ============================================================
+   2. BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+html {
+  /* Safety net, not a layout device: the SVG wordmark is measured to fit
+     exactly, so nothing here should ever overflow sideways. `clip` rather
+     than `hidden` because `hidden` would turn the root into a scroll
+     container and change the page's scroll behaviour. */
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--desk-ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  /* The whole site sits on the maroon: a vertical gradient from --brand to
+     --brand-deep, with a very faint grain at <3% opacity for depth. */
+  background:
+    repeating-linear-gradient(88deg,
+      rgba(244, 236, 227, .022) 0 2px,
+      rgba(244, 236, 227, 0) 2px 5px),
+    linear-gradient(to bottom, var(--brand) 0%, var(--brand-deep) 100%);
+  background-attachment: fixed;
+}
+
+img { display: block; max-width: 100%; }
+
+figure { margin: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   3. THE FRONT PAGE
+   A full-viewport typographic cover on the maroon. The wordmark is
+   inline SVG rather than text, because textLength pins the glyphs to
+   the viewBox width: a vw font-size overflows at some widths and
+   leaves gaps at others, this cannot do either. The viewBox is cut to
+   the measured ink of Syne 800 (plus a 2-unit margin so a fallback
+   face can never be clipped), which is what makes the word sit flush.
+
+   Measured at font-size 200: advance 1986, ink x -13..1975, ink y
+   -132..+4 about the baseline.
+     k         = 1000 / 1986 = 0.503525
+     font-size = 200k         = 100.705
+     text y    = 132k         =  66.465
+     viewBox   = ink x k, plus 2 units of margin all round
+   Changing the word means re-measuring all four numbers.
+   ============================================================ */
+.hero {
+  position: relative;
+  /* svh, not vh: vh is the *tall* viewport, so the field would jump as
+     mobile browser chrome slides away. min-height, not height, so an
+     extreme landscape aspect grows the field instead of cropping. */
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* vertical only: the wordmark is meant to run to the trim */
+  padding: clamp(56px, 11vh, 130px) 0 clamp(104px, 17vh, 176px);
+  /* The hero inherits the maroon from body but sits slightly deeper than the
+     desk below: a soft bottom fade into --brand-deep reads as the scroll
+     moving *into* the book, not as the same flat wall. */
+  background-image: linear-gradient(to bottom, var(--brand) 55%, var(--brand-deep) 100%);
+  color: var(--brand-ink);
+}
+
+.hero-inner {
+  width: 100%;
+  animation: hero-rise 600ms cubic-bezier(.22, .61, .36, 1) both;
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero-word {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-word text {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: 0;
+  fill: var(--brand-ink);
+}
+
+.hero-kicker {
+  margin: clamp(10px, 1.7vw, 22px) 0 0;
+  padding: 0 16px;
+  text-align: center;
+  font-family: var(--tech);
+  font-size: clamp(.6rem, 1.05vw, .76rem);
+  font-weight: 400;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+  /* 70%, not the 60% this started as: at 60% the line is 4.46:1 on the
+     maroon and fails AA. At 70% it is 5.58:1. */
+  opacity: .7;
+}
+
+/* The scroll cue: one hairline with a highlight running down it, and one
+   label. A real anchor, so it is keyboard reachable without a handler. */
+.hero-cue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(20px, 4.5vh, 48px);
+  width: fit-content;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  padding: 4px 12px;
+  color: var(--brand-ink);
+  text-decoration: none;
+}
+
+.hero-cue-rule {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: currentColor;
+  opacity: .34;
+}
+
+.hero-cue-rule::after {
+  content: "";
+  position: absolute;
+  left: -.5px;
+  top: -16px;
+  width: 2px;
+  height: 16px;
+  background: currentColor;
+  opacity: 0;
+  animation: cue-run 3.4s cubic-bezier(.4, 0, .6, 1) infinite;
+}
+
+@keyframes cue-run {
+  0%   { top: -16px; opacity: 0; }
+  16%  { opacity: 1; }
+  84%  { opacity: 1; }
+  100% { top: 46px; opacity: 0; }
+}
+
+.hero-cue-label {
+  font-family: var(--tech);
+  font-size: .62rem;
+  font-weight: 400;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  opacity: .72;
+  transition: opacity .18s ease;
+}
+
+.hero-cue:hover .hero-cue-label { opacity: 1; }
+
+/* The global --accent focus ring is 2.0:1 on the maroon — invisible. */
+.hero :focus-visible { outline-color: var(--brand-ink); }
+
+/* ============================================================
+   4. THE DESK AND ITS TYPE
+   ============================================================ */
+.desk {
+  /* The whole desk sits on the maroon: the book takes most of the width,
+     a narrow index column runs down the left edge, and the controls and
+     social links close the page out. */
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 30px 28px 64px;
+}
+
+/* Two-column desk: a compact contents rail on the left, the book taking the
+   rest of the width. Sharing a single grid is what keeps the book's axis
+   centred on the page while the index hugs the edge. */
+.layout {
+  display: grid;
+  grid-template-columns: 218px minmax(0, 1fr);
+  column-gap: 34px;
+  align-items: start;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* The left edge: a small Contents list, with the live "about this work" box
+   directly beneath it. Sticky so it tracks the book without scrolling. */
+.side {
+  position: sticky;
+  top: 30px;
+  max-height: calc(100svh - 60px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* The name: alone at the top, centred on the book's axis. The name spans the
+   full layout width; its text centres over the book column's axis because the
+   grid's first column (the 218px rail) is visually narrow. */
+.masthead {
+  max-width: 1320px;
+  margin: 0 auto 22px;
+  padding-left: calc(218px + 34px);   /* offset so it centres on the book, not the page */
+  text-align: center;
+}
+
+/* Labels and metadata are the mono; anything you press stays in the sans,
+   so a control never reads as a caption. */
+.board-kicker,
+.palettes-label,
+.hint,
+.counter {
+  font-family: var(--sans);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+
+.cap-meta,
+.cap-flag {
+  font-family: var(--tech);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.1rem, 4.4vw, 3.3rem);
+  line-height: 1.04;
+  letter-spacing: .02em;
+  color: var(--desk-ink);
+}
+
+/* The short line under the book, on the same axis as the name. */
+.footnote {
+  margin-top: 44px;
+  padding-left: calc(218px + 34px);
+  max-width: 1320px;
+}
+
+/* Under 1100px the index column is hidden, so the name and blurb centre on
+   the whole page instead of offsetting for the rail. */
+@media (max-width: 1099px) {
+  .masthead, .footnote { padding-left: 0; }
+}
+
+.blurb {
+  margin: 0 auto;
+  max-width: 44ch;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.06rem;
+  line-height: 1.6;
+  color: var(--desk-ink-dim);
+}
+
+/* ============================================================
+   5. THE BOOK — takes most of the right column
+   ============================================================ */
+.book-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: center;
+  min-width: 0;
+}
+
+.book-stage {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  /* Must stay 2 × maxWidth in initFlip(): that is where StPageFlip stops
+     growing the spread. maxWidth 620 × 2 = 1240px stage, so the book fills
+     most of the right column. */
+  max-width: 1240px;
+  margin: 0 auto;
+  /* 1px cream rule at ~12% separates the book from the maroon without a
+     hard box; the contact shadow below does the physical work. */
+  border: 1px solid rgba(244, 236, 227, .12);
+  border-radius: 10px;
+}
+
+/* ============================================================
+   5b. THE PLATE-INFO BOX — compact, directly under the Contents list
+   ============================================================ */
+/* The annotation lives off the page, in this small box on the left: the
+   artwork bleeds across both leaves, so the title, the hand-written note and
+   the plate's specification sit here, turning over with the spread. Hidden
+   on the covers (see showInfo in js/script.js). Kept compact so the index
+   and the box together stay well short of the viewport. */
+.plate-info {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--brand-rule);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  max-height: calc(100svh - 30rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.plate-info.is-shown { opacity: 1; }
+
+/* The UA rule for [hidden] is display:none; an author display rule would beat
+   it, so hide it explicitly here rather than leaving the box occupying
+   layout space on the covers with opacity:0. */
+.plate-info[hidden] { display: none; }
+
+.plate-info-num {
+  margin: 0;
+  font-family: var(--tech);
+  font-size: .62rem;
+  font-weight: 400;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--brand-dim);
+}
+
+.plate-info-title {
+  margin: 8px 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.28rem;
+  line-height: 1.14;
+  letter-spacing: .01em;
+  color: var(--brand-ink);
+}
+
+.plate-info-meta {
+  margin: 7px 0 0;
+  font-family: var(--tech);
+  font-size: .6rem;
+  font-weight: 400;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brand-dim);
+}
+
+.plate-info-note {
+  margin: 11px 0 0;
+  font-family: var(--script);
+  font-size: 1.08rem;
+  line-height: 1.4;
+  max-width: 32ch;
+  color: var(--brand-ink);
+  opacity: .9;
+}
+
+.plate-info-spec {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px 14px;
+  margin: 15px 0 0;
+  font-family: var(--tech);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--brand-dim);
+}
+
+.plate-info-spec dt { grid-column: 1; }
+.plate-info-spec dd { grid-column: 2; margin: 0; }
+
+.plate-info-flag {
+  margin: 12px 0 0;
+  font-family: var(--tech);
+  font-size: .6rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+}
+
+/* ============================================================
+   5c. THE CONTENTS RAIL — the index on the left edge
+   ============================================================ */
+/* The Contents list: a compact vertical index of every work, at the very top
+   of the left column. Each entry is a plate number in mono and the title in
+   the display serif; the current work is lit in full cream via aria-current.
+   Slightly tighter than it was: the point is to keep the menu small so the
+   book stays the big thing. */
+.contents-rail { }
+
+.rail-title {
+  margin: 0 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--brand-rule);
+  font-family: var(--tech);
+  font-size: .62rem;
+  font-weight: 400;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brand-dim);
+}
+
+.contents {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contents li + li { border-top: 1px solid var(--brand-rule); }
+
+.contents button {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 0;
+  background: none;
+  border: 0;
+  color: var(--brand-dim);
+  font-family: var(--serif);
+  font-size: .88rem;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.contents button .contents-num {
+  flex: none;
+  font-family: var(--tech);
+  font-size: .64rem;
+  letter-spacing: .1em;
+  color: var(--brand-dim);
+  transition: color .2s ease;
+}
+
+.contents button:hover { color: var(--brand-ink); }
+.contents button:hover .contents-num { color: var(--brand-ink); }
+
+.contents button[aria-current] { color: var(--brand-ink); }
+.contents button[aria-current] .contents-num { color: var(--brand-ink); }
+
+/* StPageFlip sizes every leaf from this element's offsetWidth/offsetHeight, and
+   it measures once before its own wrapper has been given a height. With no
+   definite height here that first pass falls back to the library's 280px
+   min-height and derives a half-size leaf -- a bug that hides at normal motion
+   speeds and shows up when a global `transition-duration` override stops the
+   library's second, corrective pass. The stage's 3:2 is the same ratio as the
+   library's spread (2 x 420 : 560), so filling it is always exact. Keep this
+   in step with `width`/`height` in initFlip(). */
+#book { height: 100%; }
+
+/* contact shadow on the desk, under the book */
+.book-stage::before {
+  content: "";
+  position: absolute;
+  inset: 5% 2% -4% 2%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(74, 58, 40, .30), rgba(74, 58, 40, 0) 76%);
+  filter: blur(26px);
+  pointer-events: none;
+}
+
+/* --- leaf shell (StPageFlip positions and sizes .page inline) --- */
+.page-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 6px;
+  background-color: var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, .014) 0 1px,
+      rgba(0, 0, 0, 0) 1px 3px),
+    radial-gradient(92% 74% at 50% 0%, rgba(255, 255, 255, .10), rgba(255, 255, 255, 0) 70%);
+  color: var(--ink);
+}
+
+/* The gutter: dark along each page's inner (spine) edge, which is what
+   makes two panels read as one book. Left pages darken on the right,
+   right pages on the left. */
+.page-inner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 13%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.page[data-side="left"] .page-inner::after {
+  right: 0;
+  background: linear-gradient(to left,
+    rgba(0, 0, 0, .30) 0%,
+    rgba(0, 0, 0, .13) 32%,
+    rgba(0, 0, 0, 0) 100%);
+}
+
+.page[data-side="right"] .page-inner::after {
+  left: 0;
+  background: linear-gradient(to right,
+    rgba(0, 0, 0, .30) 0%,
+    rgba(0, 0, 0, .13) 32%,
+    rgba(0, 0, 0, 0) 100%);
+}
+
+/* page weight: the stack of leaves shading in at the outer edge */
+.page[data-side="left"] .page-inner {
+  box-shadow:
+    inset 16px 0 20px -22px var(--ink),
+    inset 0 0 0 1px var(--rule);
+}
+
+.page[data-side="right"] .page-inner {
+  box-shadow:
+    inset -16px 0 20px -22px var(--ink),
+    inset 0 0 0 1px var(--rule);
+}
+
+/* A full-bleed plate runs to the trim, so those leaves carry no paper edge
+   at all — the gutter shading is what still reads as a bound book. */
+.page[data-side] .page-inner--bleed { box-shadow: none; }
+
+/* --- hard boards: page 0 and the last page --- */
+.page[data-density="hard"] .page-inner {
+  background-color: var(--cover);
+  background-image:
+    repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, .05) 0 1px,
+      rgba(255, 255, 255, .022) 1px 4px),
+    linear-gradient(150deg, rgba(255, 255, 255, .10), rgba(0, 0, 0, .22));
+  color: var(--cover-ink);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, .40),
+    inset 0 0 0 2px rgba(255, 255, 255, .06);
+}
+
+.page[data-density="hard"] .page-inner::after { background: none; }
+
+.spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2cqw;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to right,
+    rgba(0, 0, 0, .50),
+    rgba(0, 0, 0, .14) 55%,
+    rgba(255, 255, 255, .07) 100%);
+}
+
+.board--back .spine {
+  left: auto;
+  right: 0;
+  background: linear-gradient(to left,
+    rgba(0, 0, 0, .50),
+    rgba(0, 0, 0, .14) 55%,
+    rgba(255, 255, 255, .07) 100%);
+}
+
+/* ============================================================
+   7. BOARD CONTENT (FRONT COVER / BACK COVER)
+   ============================================================ */
+.board {
+  display: flex;
+  flex-direction: column;
+  padding: 4cqw 3.5cqw 3.5cqw 4.9cqw;
+}
+
+.board--back { padding: 4cqw 4.9cqw 3.5cqw 3.5cqw; }
+
+.board-kicker {
+  margin: 0;
+  font-size: .66rem;
+  font-size: 1.25cqw;
+  opacity: .62;
+}
+
+.board-body {
+  max-width: 22ch;
+  margin: auto 0 14%;
+}
+
+.board-body--back {
+  max-width: 26ch;
+  margin: auto 0 0 auto;
+  text-align: right;
+}
+
+.board-name {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 2.2rem;
+  font-size: clamp(1.35rem, 4.1cqw, 2.45rem);
+  line-height: 1.08;
+  letter-spacing: .012em;
+}
+
+.board-rule {
+  display: block;
+  width: 5.3cqw;
+  height: 1px;
+  margin: 1.85cqw 0 1.75cqw;
+  background: var(--cover-ink);
+  opacity: .34;
+}
+
+.board-body--back .board-rule { margin-left: auto; }
+
+.board-sub {
+  margin: 0;
+  font-size: .78rem;
+  font-size: 1.45cqw;
+  line-height: 1.75;
+  opacity: .74;
+}
+
+.board-hint {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: .64rem;
+  font-size: 1.2cqw;
+  font-weight: 400;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: .5;
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .34; }
+  50%      { opacity: .76; }
+}
+
+/* ============================================================
+   8. THE PLATE — one artwork across both leaves
+   The plate is a single element twice the width of a leaf and
+   one leaf tall, clipped by each page, so one picture runs
+   through the gutter and off all four edges. No frame, no mat,
+   no border: the picture is the page.
+   ============================================================ */
+.page-inner--bleed {
+  display: block;
+  padding: 0;
+}
+
+.bleed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200%;            /* the open spread: two leaves wide */
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* The recto shows the right-hand half of the same picture: the element is
+   shifted one leaf left, so both halves are identical in size and meet
+   exactly on the gutter. */
+.page[data-half="right"] .bleed { left: -100%; }
+
+.bleed img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* placeholder: a tonal composition in the work's own colour, never an
+   invented illustration */
+.bleed--empty {
+  background-image:
+    radial-gradient(70% 62% at 22% 16%, rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 64%),
+    radial-gradient(64% 56% at 82% 88%, rgba(0, 0, 0, .22), rgba(0, 0, 0, 0) 64%),
+    linear-gradient(155deg, var(--plate-hi) 0%, var(--plate-mid) 47%, var(--plate-lo) 100%);
+}
+
+/* A missing artwork is never a silent grey page: the placeholder plate
+   carries its own label, like a wall label on an empty frame. The plate is
+   twice a leaf wide, so 25% of it is the verso leaf's centre (and 75% the
+   recto's) — the plaque sits on the verso, and the recto stays plain tone.
+   It is a plaque, not a scrim: there is no picture underneath to scrim. */
+.plate-label {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: .55em;
+  padding: 1.6cqw 3.2cqw;
+  /* Fixed tones rather than palette tokens: a work's --plate-* colours are
+     fixed hexes, so a palette-driven plaque could land dark on dark. Worst
+     case over the lightest plate is 5.7:1. */
+  background: rgba(22, 17, 12, .55);
+  border: 1px solid rgba(242, 236, 225, .22);
+  color: #f2ece1;
+  font-family: var(--tech);
+  font-size: 1.12cqw;
+  font-weight: 400;
+  letter-spacing: .2em;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.plate-label-num { font-size: .92em; }
+
+/* ============================================================
+   9. PLATES AT GALLERY SIZE (the mobile fallback)
+   The same photographs and tonal placeholders, but framed — a
+   border earns its place here, because each one is a card in a
+   vertical stack rather than a page in a book.
+   ============================================================ */
+.plate-frame {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, .045);
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+.plate-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.plate--empty {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(155deg,
+    var(--plate-hi) 0%,
+    var(--plate-mid) 47%,
+    var(--plate-lo) 100%);
+}
+
+.plate--empty::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(72% 58% at 20% 16%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 62%),
+    radial-gradient(62% 52% at 84% 90%, rgba(0, 0, 0, .26), rgba(0, 0, 0, 0) 62%);
+}
+
+/* These two live in the gallery, which sits outside .book-stage. Anything
+   sized in cqw out there has no container to resolve against and falls back
+   to the viewport — at phone width that is a 4px caption. So: rems. */
+.cap-meta {
+  font-size: .68rem;
+  color: var(--desk-ink-dim);
+}
+
+.cap-flag {
+  font-size: .68rem;
+  color: var(--accent);
+}
+
+/* ============================================================
+   10. CONTROLS
+   ============================================================ */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px 22px;
+  width: 100%;
+}
+
+.btn {
+  min-height: 44px;
+  padding: 0 20px;
+  background: none;
+  border: 1px solid var(--desk-rule);
+  border-radius: 2px;
+  color: var(--desk-ink);
+  font-family: var(--sans);
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: rgba(239, 230, 216, .10);
+  border-color: rgba(239, 230, 216, .42);
+}
+
+.btn:disabled { opacity: .32; cursor: not-allowed; }
+
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: .66rem;
+  color: var(--desk-ink-dim);
+}
+
+.counter-work {
+  font-family: var(--serif);
+  font-size: .98rem;
+  font-style: italic;
+  letter-spacing: .01em;
+  text-transform: none;
+  color: var(--desk-ink);
+}
+
+.palettes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.palettes-label {
+  font-size: .62rem;
+  color: var(--desk-ink-dim);
+}
+
+.swatch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.swatch span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--sw);
+  box-shadow: 0 0 0 1px var(--desk-rule);
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+
+.swatch:hover span { transform: scale(1.1); }
+
+.swatch[aria-pressed="true"] span {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px var(--brand);
+}
+
+.hint {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: .62rem;
+  line-height: 1.9;
+  color: var(--desk-ink-dim);
+  opacity: .78;
+}
+
+/* ============================================================
+   11. MOBILE GALLERY (a deliberate fallback, not a failure)
+   ============================================================ */
+.gallery { display: none; }
+
+.g-card figcaption { padding-top: 16px; }
+
+.g-card h3 {
+  margin: 0 0 5px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.34rem;
+  line-height: 1.2;
+  color: var(--desk-ink);
+}
+
+.g-note {
+  margin: 12px 0 0;
+  max-width: 42ch;
+  font-family: var(--script);
+  font-size: 1.3rem;
+  line-height: 1.45;
+  color: var(--desk-ink-dim);
+}
+
+.notice {
+  margin: 30px 0 0;
+  max-width: 46ch;
+  font-size: .74rem;
+  line-height: 1.7;
+  color: var(--desk-ink-dim);
+}
+
+/* no flipbook (blocked CDN, offline, no JavaScript) -> the gallery stands in.
+   The index column and the plate-info box are book controls, so they go too. */
+.no-flip .side {
+  display: none;
+}
+
+.no-flip .book-column { display: none; }
+
+.no-flip .gallery { display: grid; gap: 46px; }
+
+/* ============================================================
+   11b. SOCIAL FOOTER — small monochrome glyphs at the end of the page
+   ============================================================ */
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 26px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 6px auto 0;
+  padding-top: 28px;
+  border-top: 1px solid var(--brand-rule);
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 6px;
+  color: var(--brand-dim);
+  text-decoration: none;
+  transition: color .18s ease;
+}
+
+.social-link svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: currentColor;
+}
+
+.social-link span {
+  font-family: var(--tech);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.social-link:hover,
+.social-link:focus-visible { color: var(--brand-ink); }
+
+/* ============================================================
+   12. BREAKPOINTS
+   ============================================================ */
+
+/* Under 1100px there is no room for the index column *and* a big leaf:
+   the book takes the full width and the left column goes. The plate-info box
+   moves under the book so the annotation is not lost. */
+@media (max-width: 1099px) {
+  .layout {
+    display: block;
+  }
+
+  .side { display: none; }
+
+  /* the annotation drops under the book, full width, as a single block */
+  .plate-info {
+    margin: 0 auto;
+    max-width: 640px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* no flipbook -> the box is hidden with the whole book */
+  .no-flip .plate-info { display: none; }
+}
+
+/* Under 900px the flipbook goes too: corner-drag fights scroll on a phone.
+   The gallery takes over; its captions already carry the note. */
+@media (max-width: 900px) {
+  .desk { padding: 32px 20px 64px; }
+
+  .book-column { display: none; }
+
+  .plate-info { display: none; }
+
+  .gallery { display: grid; gap: 46px; }
+
+  .g-card .plate-frame { aspect-ratio: 4 / 5; }
+
+  .social { padding: 0 20px; }
+}
+
+/* ============================================================
+   13. REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The hero's rise and the plate-info box's fade both resolve instantly
+     under the rule above. The cue's travelling highlight is stopped outright
+     rather than left frozen on whatever frame the shortened animation lands on. */
+  .hero-cue-rule::after { display: none; }
+
+  /* The 180ms opacity fade on .plate-info is suppressed. */
+  .plate-info { transition: none; }
+}

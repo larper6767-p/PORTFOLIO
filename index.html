@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="warm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketchbook — Your Name</title>
+<meta name="description" content="A sketchbook of paintings, prints and notes. Flip through it page by page.">
+
+<!-- Paper tone is applied before first paint so the desk never flashes the wrong colour. -->
+<script src="js/theme.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,100..900,slnt@-10..0&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@700;800&family=Work+Sans:wght@300;400;500&display=swap">
+
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ============================================================
+     THE FRONT PAGE
+     A full-viewport typographic cover. The wordmark is inline SVG
+     rather than a vw font-size, so it cannot overflow: textLength
+     pins the glyphs to the viewBox, which is in turn cut to the
+     ink so the word sits flush left and right.
+
+     The geometry is measured, not guessed. Syne 800 at font-size
+     200 has advance 1986, ink x -13..1975, ink y (baseline
+     relative) -132..+4. So k = 1000/1986, font-size = 200k, and
+     the viewBox is the ink box scaled by k plus a 2-unit margin so
+     a fallback face can never be clipped. Changing the word means
+     re-measuring; see css/styles.css section 3.
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-inner">
+    <svg class="hero-word" viewBox="-8.55 -2 1010.55 72.48" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Portfolio">
+      <text x="0" y="66.465" textLength="1000" lengthAdjust="spacingAndGlyphs" font-size="100.705">PORTFOLIO</text>
+    </svg>
+    <p class="hero-kicker" id="hero-kicker">Selected work &middot; 2019&#8212;2024</p>
+  </div>
+
+  <a class="hero-cue" href="#sketchbook">
+    <span class="hero-cue-rule" aria-hidden="true"></span>
+    <span class="hero-cue-label">The sketchbook</span>
+  </a>
+</section>
+
+<div class="desk" id="sketchbook">
+
+  <header class="masthead">
+    <h1 id="m-name">Your Name</h1>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT: a narrow index column. The Contents list up top, and a compact
+         live "about this work" box directly beneath it that turns over with
+         the spread (the artwork itself bleeds across both leaves). -->
+    <aside class="side">
+      <nav class="contents-rail" aria-label="Index of works">
+        <p class="rail-title">Contents</p>
+        <ol class="contents" id="contents-list"></ol>
+      </nav>
+
+      <section class="plate-info" id="plate-info" aria-live="polite" hidden>
+        <p class="plate-info-num" id="plate-info-num"></p>
+        <h2 class="plate-info-title" id="plate-info-title"></h2>
+        <p class="plate-info-meta" id="plate-info-meta"></p>
+        <p class="plate-info-note" id="plate-info-note"></p>
+        <dl class="plate-info-spec" id="plate-info-spec"></dl>
+        <p class="plate-info-flag" id="plate-info-flag" hidden>Not yet photographed</p>
+      </section>
+    </aside>
+
+    <!-- RIGHT: the book takes most of the width. -->
+    <div class="book-column">
+      <div class="book-stage">
+        <!-- StPageFlip wraps this element -->
+        <div id="book"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="btn-back" type="button">Back</button>
+        <button class="btn" id="btn-turn" type="button">Turn</button>
+
+        <p class="counter" aria-live="polite">
+          <span id="counter-page">Cover</span>
+          <span class="counter-work" id="counter-work"></span>
+        </p>
+
+        <div class="palettes" role="group" aria-label="Paper tone">
+          <span class="palettes-label">Paper</span>
+          <button class="swatch" type="button" data-palette="warm" aria-pressed="true" aria-label="Warm paper">
+            <span style="--sw:#f2e9db" aria-hidden="true"></span>
+          </button>
+          <button class="swatch" type="button" data-palette="kraft" aria-pressed="false" aria-label="Kraft paper">
+            <span style="--sw:#e7d6b8" aria-hidden="true"></span>
+          </button>
+          <button class="swatch" type="button" data-palette="slate" aria-pressed="false" aria-label="Slate paper">
+            <span style="--sw:#2d2c29" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <p class="hint">Click a page to turn &middot; drag a corner &middot; &#8592; / &#8594; arrow keys</p>
+    </div>
+
+  </div>
+
+  <section class="gallery" id="gallery" aria-label="Works"></section>
+
+  <div class="footnote">
+    <p class="blurb" id="blurb"></p>
+  </div>
+
+  <!-- Social links: small monochrome glyphs, end of the page. -->
+  <footer class="social" aria-label="Social media">
+    <a class="social-link" href="https://www.instagram.com/carpediemssnuts/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.3" cy="6.7" r="1.15" fill="currentColor"/></svg>
+      <span>Instagram</span>
+    </a>
+    <a class="social-link" href="https://x.com/Ramen262036" target="_blank" rel="noopener" aria-label="X (Twitter)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3.5 L10.2 12.1 L4 20.5 H6.1 L11.4 14 L16.1 20.5 H20 L12.9 11.1 L19.8 3.5 H17.7 L11.9 10.5 L7.7 3.5 Z" fill="currentColor"/></svg>
+      <span>X</span>
+    </a>
+  </footer>
+
+  <noscript>
+    <p class="notice">This sketchbook is assembled in the browser. Turn JavaScript on to flip through it.</p>
+  </noscript>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
